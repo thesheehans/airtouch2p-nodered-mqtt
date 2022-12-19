@@ -1,0 +1,23 @@
+mqtt:
+  climate:
+    - name: AC
+      modes:
+              - 'auto'
+              - 'heat'
+              - 'dry'
+              - 'fan_only'
+              - 'cool'
+      fan_modes:
+              - 'auto'
+              - 'quiet'
+              - 'low'
+              - 'medium'
+              - 'high'
+              - 'powerful'
+              - 'turbo'
+      action_topic: home/airtouch2p/0/power
+      fan_mode_state_topic: home/airtouch2p/0/fan_speed/state
+      mode_state_topic: home/airtouch2p/0/mode/state
+      temperature_state_topic: home/airtouch2p/0/setpoint/state
+      current_temperature_topic: home/airtouch2p/0/temperature/state
+      temperature_unit: C
