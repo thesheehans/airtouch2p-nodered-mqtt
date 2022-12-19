@@ -37,7 +37,7 @@ To see any messages, subscribe to:
 
 ## Configuration
 
-To use the built-in climate card, add the `mqtt` configuration to your favourite location, best to try `configuration.yaml' first and move it later.
+To use the built-in climate card, add the `mqtt` configuration to your favourite location, best to try `configuration.yaml` first and move it later.
 
 https://github.com/thesheehans/airtouch2p-nodered-mqtt/blob/main/mqtt_configuration.yaml
 
