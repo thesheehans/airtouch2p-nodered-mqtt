@@ -6,11 +6,32 @@ Beginnings of Node RED flow to sit between an Polyaire AirTouch 2+ controller an
 
 - [x] Status
   - [x] AC
+    - [x] AC power state
+    - [x] AC mode
+    - [x] HA Action
+    - [x] AC fan speed
+    - [x] Setpoint
+    - [x] Temperature
+    - [ ] Turbo
+    - [ ] Bypass
+    - [ ] Spill
+    - [ ] Timer status
+    - [ ] Error codes
   - [ ] Groups
+    - [ ] Power state
+    - [ ] Open percentage
+    - [ ] Turbo support
+    - [ ] Spill
   - [ ] Extended Messages
 - [ ] Control
   - [ ] AC
+    - [ ] Power setting
+    - [ ] Mode
+    - [ ] Fan speed
+    - [ ] Setpoint
   - [ ] Groups
+    - [ ] Power
+    - [ ] Percentage
 
 ## Instructions
 
