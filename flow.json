@@ -2,7 +2,7 @@
     {
         "id": "58b5e101.08975",
         "type": "tab",
-        "label": "AirTouch",
+        "label": "AirTouch2+",
         "disabled": false,
         "info": ""
     },
@@ -21,7 +21,7 @@
         "trim": false,
         "base64": false,
         "tls": "",
-        "x": 220,
+        "x": 210,
         "y": 120,
         "wires": [
             [
@@ -52,7 +52,7 @@
         "type": "function",
         "z": "58b5e101.08975",
         "name": "Parse Message",
-        "func": "var topic;\n\nswitch (msg.payload[8]) {\n    case 0x23: { // AC Status\n        var ACnumber = (msg.payload[16] & 0x0F);\n        var root = 'home/airtouch2p/'+ACnumber;\n        var payload;\n        var action;\n\n        // AC power state\n        topic = '/power';\n        switch (msg.payload[16] & 0xF0) { // AC Power State\n            case 0: // 0000xxxx\n                payload = 'off';\n                action = 'off'\n                break;\n            case 16: // 0001xxxx\n                payload = 'on';\n                break;\n            case 32: // 0010xxxx\n                payload = 'away off';\n                break;\n            case 48: // 0011xxxx\n                payload = 'away on';\n                break;\n            case 80: // 0101xxxx\n                payload = 'sleep';\n                break;\n            default:\n                payload = '';\n                break;\n        }\n        node.send({ payload: payload, topic: root+topic }, false);\n\n        // AC mode\n        topic = '/mode/state';\n        payload = false;\n        switch (msg.payload[17] & 0xF0) {\n            case 0: // 0000xxxx\n                payload = 'auto';\n                break;\n            case 16: // 0001xxxx\n                payload = \"heat\";\n                break;\n            case 32: // 0010xxxx\n                payload = \"dry\";\n                break;\n            case 48: // 0011xxxx\n                payload = \"fan_only\";\n                break;\n            case 64: // 0100xxxx\n                payload = \"cool\";\n                break\n            case 128: // 1000xxxx\n                payload = \"auto_heat\";\n                break\n            case 144: // 1001xxxx\n                payload = \"auto_cool\";\n                break\n            default:\n                payload = '';\n                break;\n        }\n        node.send({ payload: payload, topic: root + topic }, false);\n\n        if (action != 'off') {\n            topic = '/action';\n            switch (payload) {\n                case 'auto':\n                    payload = 'idle'\n                    break;\n                case 'heat':\n                case 'cool':\n                case 'dry':\n                    payload = payload + 'ing';\n                    break;\n                case 'fan_only':\n                    payload = 'fan'\n                    break;\n                default:\n                    payload = 'off'\n                    break;\n            }\n            node.send({ payload: payload, topic: root + topic }, false);\n        }\n\n        // AC fan speed\n        topic = '/fan_speed/state';\n        payload = false;\n        switch (msg.payload[17] & 0x0F) {\n            case 0: // xxxx0000\n                payload = \"auto\";\n                break;\n            case 1: // xxxx0001\n                payload = \"quiet\";\n                break;\n            case 2: // xxxx0010\n                payload = \"low\";\n                break;\n            case 3: // xxxx0011\n                payload = \"medium\";\n                break;\n            case 4: // xxxx0100\n                payload = \"high\";\n                break;\n            case 5: // xxxx0101\n                payload = \"powerful\";\n                break;\n            case 6: // xxxx0110\n                payload = \"turbo\";\n                break;\n            default:\n                payload = '';\n                break;\n        }\n        node.send({ payload: payload, topic: root + topic }, false);\n\n        // Setpoint\n        // 0-250: Setpoint = (VALUE + 100)/10. \n        topic = '/setpoint/state';\n        payload = (msg.payload[18] + 100) / 10;\n        node.send({ payload: payload, topic: root + topic }, false);\n\n        // Temperature\n        // 0 - 2000: Temperature = (VALUE – 500) /10\n        topic = '/temperature/state';\n//        payload = ((parseInt(msg.payload[20].toString(16) + msg.payload[21].toString(16), 16)) - 500) / 10\n        payload = ((((msg.payload[20] & 0xff) << 8) | (msg.payload[21] & 0xff)) - 500) / 10;\n        node.send({ payload: payload, topic: root + topic }, false);\n\n        break;\n    }\n    case 0x21: { // Group Status\n\n        break;\n    }\n}\n\nnode.done();\nreturn;",
+        "func": "var topic;\n\nswitch (msg.payload[8]) {\n    case 0x23: { // AC Status\n        var ACnumber = (msg.payload[16] & 0x0F);\n        var root = 'home/airtouch2p/'+ACnumber;\n        var payload;\n        var action;\n\n        // AC power state\n        topic = '/power';\n        switch (msg.payload[16] & 0xF0) { // AC Power State\n            case 0: // 0000xxxx\n                payload = 'off';\n                action = 'off'\n                break;\n            case 16: // 0001xxxx\n                payload = 'on';\n                break;\n            case 32: // 0010xxxx\n                payload = 'away off';\n                break;\n            case 48: // 0011xxxx\n                payload = 'away on';\n                break;\n            case 80: // 0101xxxx\n                payload = 'sleep';\n                break;\n            default:\n                payload = '';\n                break;\n        }\n        node.send({ payload: payload, topic: root+topic }, false);\n\n        // AC mode\n        topic = '/mode/state';\n        payload = false;\n        switch (msg.payload[17] & 0xF0) {\n            case 0: // 0000xxxx\n                payload = 'auto';\n                break;\n            case 16: // 0001xxxx\n                payload = \"heat\";\n                break;\n            case 32: // 0010xxxx\n                payload = \"dry\";\n                break;\n            case 48: // 0011xxxx\n                payload = \"fan_only\";\n                break;\n            case 64: // 0100xxxx\n                payload = \"cool\";\n                break\n            case 128: // 1000xxxx\n                payload = \"auto_heat\";\n                break\n            case 144: // 1001xxxx\n                payload = \"auto_cool\";\n                break\n            default:\n                payload = '';\n                break;\n        }\n        node.send({ payload: payload, topic: root + topic }, false);\n\n        // HA Action\n        topic = '/action';\n        if (action != 'off') {\n            switch (payload) {\n                case 'auto':\n                    payload = 'idle'\n                    break;\n                case 'heat':\n                case 'cool':\n                case 'dry':\n                    payload = payload + 'ing';\n                    break;\n                case 'fan_only':\n                    payload = 'fan'\n                    break;\n                default:\n                    payload = 'off'\n                    break;\n            }\n        } else {\n            payload = 'off';\n        }\n        node.send({ payload: payload, topic: root + topic }, false);\n\n        // AC fan speed\n        topic = '/fan_speed/state';\n        payload = false;\n        switch (msg.payload[17] & 0x0F) {\n            case 0: // xxxx0000\n                payload = \"auto\";\n                break;\n            case 1: // xxxx0001\n                payload = \"quiet\";\n                break;\n            case 2: // xxxx0010\n                payload = \"low\";\n                break;\n            case 3: // xxxx0011\n                payload = \"medium\";\n                break;\n            case 4: // xxxx0100\n                payload = \"high\";\n                break;\n            case 5: // xxxx0101\n                payload = \"powerful\";\n                break;\n            case 6: // xxxx0110\n                payload = \"turbo\";\n                break;\n            default:\n                payload = '';\n                break;\n        }\n        node.send({ payload: payload, topic: root + topic }, false);\n\n        // Setpoint\n        // 0-250: Setpoint = (VALUE + 100)/10. \n        topic = '/setpoint/state';\n        payload = (msg.payload[18] + 100) / 10;\n        node.send({ payload: payload, topic: root + topic }, false);\n\n        // Temperature\n        // 0 - 2000: Temperature = (VALUE – 500) /10\n        topic = '/temperature/state';\n//        payload = ((parseInt(msg.payload[20].toString(16) + msg.payload[21].toString(16), 16)) - 500) / 10\n        payload = ((((msg.payload[20] & 0xff) << 8) | (msg.payload[21] & 0xff)) - 500) / 10;\n        node.send({ payload: payload, topic: root + topic }, false);\n\n        break;\n    }\n    case 0x21: { // Group Status\n\n        break;\n    }\n}\n\nnode.done();\nreturn;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -98,38 +98,17 @@
         "newline": "",
         "trim": false,
         "tls": "",
-        "x": 620,
-        "y": 420,
+        "x": 1100,
+        "y": 280,
         "wires": [
             []
-        ]
-    },
-    {
-        "id": "65a3dfacd7b2d9bb",
-        "type": "function",
-        "z": "58b5e101.08975",
-        "name": "Set Buffer",
-        "func": "var bufACStatus = Buffer.from(\n    [\n        0x55,0x55, // Header\n        0x80,0xB0, // Address\n        0x01,      // Message id\n        0xC0,      // Message type\n        0x00,0x08, // Data length\n        0x23,0x00,0x00,0x00,0x00,0x00,0x00,0x00,\n        0x7D,0xB0  // CRC MODBUS\n    ]\n)\n\nmsg.payload = bufACStatus;\n\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 340,
-        "y": 420,
-        "wires": [
-            [
-                "5990b18a4e52cd19",
-                "a866856ba25e577e",
-                "a4a78b637d458777"
-            ]
         ]
     },
     {
         "id": "5990b18a4e52cd19",
         "type": "debug",
         "z": "58b5e101.08975",
-        "name": "Status Request Return",
+        "name": "Data",
         "active": false,
         "tosidebar": true,
         "console": false,
@@ -138,8 +117,8 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 580,
-        "y": 480,
+        "x": 570,
+        "y": 320,
         "wires": []
     },
     {
@@ -159,48 +138,29 @@
         "onceDelay": 0.1,
         "topic": "",
         "x": 180,
-        "y": 420,
+        "y": 280,
         "wires": [
             [
-                "65a3dfacd7b2d9bb"
+                "a387b094a38642b0"
             ]
         ]
-    },
-    {
-        "id": "ddc84e74a2465d16",
-        "type": "debug",
-        "z": "58b5e101.08975",
-        "d": true,
-        "name": "CRC",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 710,
-        "y": 360,
-        "wires": []
     },
     {
         "id": "a4a78b637d458777",
         "type": "function",
         "z": "58b5e101.08975",
-        "d": true,
-        "name": "CRC16-modbus",
-        "func": "var CRCMaster = {\n    StringToCheck: \"\",\n    CleanedString: \"\",\n    CRCTableDNP: [],\n    init: function() {\n        this.CRCDNPInit();\n    },\n    CleanString: function(inputType) {\n        if (inputType == \"ASCII\") {\n            this.CleanedString = this.StringToCheck;\n        } else {\n            if (this.StringToCheck.match(/^[0-9A-F \\t]+$/gi) !== null) {\n                this.CleanedString = this._hexStringToString(this.StringToCheck.toUpperCase().replace(/[\\t ]/g, ''));\n            } else {\n                console.error(\"String doesn't seem to be a valid Hex input.\");\n                return false;\n            }\n        }\n        return true;\n    },\n    CRCDNPInit: function() {\n        var i, j, crc, c;\n        for (i = 0; i < 256; i++) {\n            crc = 0;\n            c = i;\n            for (j = 0; j < 8; j++) {\n                if ((crc ^ c) & 0x0001) crc = (crc >> 1) ^ 0xA6BC;\n                else crc = crc >> 1;\n                c = c >> 1;\n            }\n            this.CRCTableDNP[i] = crc;\n        }\n    },\n    CRC16Modbus: function() {\n        var crc = 0xFFFF;\n        var str = this.CleanedString;\n        for (var pos = 0; pos < str.length; pos++) {\n            crc ^= str.charCodeAt(pos);\n            for (var i = 8; i !== 0; i--) {\n                if ((crc & 0x0001) !== 0) {\n                    crc >>= 1;\n                    crc ^= 0xA001;\n                } else\n                    crc >>= 1;\n            }\n        }\n        return crc;\n    },\n    _stringToBytes: function(str) {\n        var ch, st, re = [];\n        for (var i = 0; i < str.length; i++) {\n            ch = str.charCodeAt(i); // get char\n            st = []; // set up \"stack\"\n            do {\n                st.push(ch & 0xFF); // push byte to stack\n                ch = ch >> 8; // shift value down by 1 byte\n            }\n            while (ch);\n            // add stack contents to result\n            // done because chars have \"wrong\" endianness\n            re = re.concat(st.reverse());\n        }\n        // return an array of bytes\n        return re;\n    },\n    _hexStringToString: function(inputstr) {\n        var hex = inputstr.toString(); //force conversion\n        var str = '';\n        for (var i = 0; i < hex.length; i += 2)\n            str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));\n        return str;\n    },\n    Calculate: function(str, inputType) {\n        this.StringToCheck = str;\n        if (this.CleanString(inputType)) {\n            crcinputcrc16modbus=this.CRC16Modbus().toString(16).toUpperCase();\n            crcinputcrc16modbus=crcinputcrc16modbus.substr(2) + crcinputcrc16modbus.substr(0, 2); //swap bytes\n   \n        }\n    }\n};\n\nCRCMaster.init();\n\nvar inputType = \"HEX\";\nvar crcinputcrc16modbus;\nvar crcinput = msg.payload;\n\nCRCMaster.Calculate(crcinput, inputType);\n\nmsg.payload = crcinput + crcinputcrc16modbus;\n\nreturn msg;",
+        "name": "CRC16 MODBUS",
+        "func": "var CRCMaster = {\n    StringToCheck: \"\",\n    CleanedString: \"\",\n    CRCTableDNP: [],\n    init: function() {\n        this.CRCDNPInit();\n    },\n    CleanString: function(inputType) {\n        if (inputType == \"ASCII\") {\n            this.CleanedString = this.StringToCheck;\n        } else {\n            if (this.StringToCheck.match(/^[0-9A-F \\t]+$/gi) !== null) {\n                this.CleanedString = this._hexStringToString(this.StringToCheck.toUpperCase().replace(/[\\t ]/g, ''));\n            } else {\n                console.error(\"String doesn't seem to be a valid Hex input.\");\n                return false;\n            }\n        }\n        return true;\n    },\n    CRCDNPInit: function() {\n        var i, j, crc, c;\n        for (i = 0; i < 256; i++) {\n            crc = 0;\n            c = i;\n            for (j = 0; j < 8; j++) {\n                if ((crc ^ c) & 0x0001) crc = (crc >> 1) ^ 0xA6BC;\n                else crc = crc >> 1;\n                c = c >> 1;\n            }\n            this.CRCTableDNP[i] = crc;\n        }\n    },\n    CRC16Modbus: function() {\n        var crc = 0xFFFF;\n        var str = this.CleanedString;\n        for (var pos = 0; pos < str.length; pos++) {\n            crc ^= str.charCodeAt(pos);\n            for (var i = 8; i !== 0; i--) {\n                if ((crc & 0x0001) !== 0) {\n                    crc >>= 1;\n                    crc ^= 0xA001;\n                } else\n                    crc >>= 1;\n            }\n        }\n        return crc;\n    },\n    _stringToBytes: function(str) {\n        var ch, st, re = [];\n        for (var i = 0; i < str.length; i++) {\n            ch = str.charCodeAt(i); // get char\n            st = []; // set up \"stack\"\n            do {\n                st.push(ch & 0xFF); // push byte to stack\n                ch = ch >> 8; // shift value down by 1 byte\n            }\n            while (ch);\n            // add stack contents to result\n            // done because chars have \"wrong\" endianness\n            re = re.concat(st.reverse());\n        }\n        // return an array of bytes\n        return re;\n    },\n    _hexStringToString: function(inputstr) {\n        var hex = inputstr.toString(); //force conversion\n        var str = '';\n        for (var i = 0; i < hex.length; i += 2)\n            str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));\n        return str;\n    },\n    Calculate: function(str, inputType) {\n        this.StringToCheck = str;\n        if (this.CleanString(inputType)) {\n            crcinputcrc16modbus=this.CRC16Modbus().toString(16).toUpperCase();\n//  No reverse of bytes in AirTouch2+ docs, confirmed in data\n//            crcinputcrc16modbus=crcinputcrc16modbus.substr(2) + crcinputcrc16modbus.substr(0, 2); //swap bytes\n        }\n    }\n};\n\nCRCMaster.init();\n\nvar inputType = \"HEX\";\nvar crcinputcrc16modbus;\nvar crcinput = msg.payload;\n\nCRCMaster.Calculate(crcinput, inputType);\n\nmsg.payload = crcinput + crcinputcrc16modbus;\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 540,
-        "y": 360,
+        "x": 610,
+        "y": 280,
         "wires": [
             [
-                "ddc84e74a2465d16"
+                "7fe62f122ccc9cd2"
             ]
         ]
     },
@@ -220,6 +180,63 @@
         "x": 490,
         "y": 180,
         "wires": []
+    },
+    {
+        "id": "7fe62f122ccc9cd2",
+        "type": "function",
+        "z": "58b5e101.08975",
+        "name": "Add Header",
+        "func": "function hexToBytes(hex) {\n    for (var bytes = [], c = 0; c < hex.length; c += 2)\n        bytes.push(parseInt(hex.substr(c, 2), 16));\n    return bytes;\n}\n\nmsg.payload = hexToBytes(msg.payload);\n\n//node.warn(msg.payload);\n\nmsg.payload.unshift(0x55, 0x55);\n\nmsg.payload = Buffer.from(msg.payload);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 830,
+        "y": 280,
+        "wires": [
+            [
+                "e67746cce33625bd",
+                "a866856ba25e577e"
+            ]
+        ]
+    },
+    {
+        "id": "e67746cce33625bd",
+        "type": "debug",
+        "z": "58b5e101.08975",
+        "name": "Full Payload",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1030,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "a387b094a38642b0",
+        "type": "function",
+        "z": "58b5e101.08975",
+        "name": "Set Data",
+        "func": "var bufACStatus = Buffer.from(\n    [\n//        0x55,0x55, // Header\n        0x80,0xB0, // Address\n        0x01,      // Message id\n        0xC0,      // Message type\n        0x00,0x08, // Data length\n        0x23,0x00,0x00,0x00,0x00,0x00,0x00,0x00, // Data\n//        0x7D,0xB0  // CRC MODBUS\n    ]\n)\n\nfunction toHexString(byteArray) {\n    return Array.from(byteArray, function (byte) {\n        return ('0' + (byte & 0xFF).toString(16)).slice(-2);\n    }).join('')\n}\n\nmsg.payload = bufACStatus;\nmsg.payload = toHexString(msg.payload);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 280,
+        "wires": [
+            [
+                "5990b18a4e52cd19",
+                "a4a78b637d458777"
+            ]
+        ]
     },
     {
         "id": "5778013a.241c4",
