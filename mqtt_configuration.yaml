@@ -16,9 +16,11 @@ mqtt:
               - 'high'
               - 'powerful'
               - 'turbo'
-      action_topic: home/airtouch2p/0/action
+      action_topic: home/airtouch2p/0/action/state
       fan_mode_state_topic: home/airtouch2p/0/fan_speed/state
+      mode_command_topic: home/airtouch2p/0/mode
       mode_state_topic: home/airtouch2p/0/mode/state
       temperature_state_topic: home/airtouch2p/0/setpoint/state
       current_temperature_topic: home/airtouch2p/0/temperature/state
       temperature_unit: C
+      power_command_topic: home/airtouch2p/0/power
