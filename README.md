@@ -2,6 +2,13 @@
 
 Beginnings of Node RED flow to sit between an Polyaire AirTouch 2+ controller and Home Assistant via MQTT
 
+> [!NOTE]  
+> A native Python Home Assistant custom component has been completed and tested:
+>
+> https://github.com/nathanvdh/homeassistant-airtouch2plus
+> 
+> Consider using this instead of this Node RED Flow
+
 ## Development
 
 - [x] Status
